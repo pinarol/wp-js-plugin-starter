@@ -34,8 +34,17 @@ function wp_js_plugin_starter_register_block() {
 		array( 'wp-element' )
 	);
 
-	register_block_type( 'wp-js-plugin-starter/hello-world', array(
+	wp_register_style(
+        'wp-js-plugin-starter',
+        wp_js_plugin_starter_url( 'src/style.css'),
+        array(),
+        filemtime( plugin_dir_path( __FILE__ ) . 'src/style.css' )
+    );
+
+	register_block_type( 'wp-js-plugin-starter/post-author-block', array(
 			'editor_script' => 'wp-js-plugin-starter',
+			'render_callback' => 'my_plugin_render_block_post_author',
+			'style' => 'wp-js-plugin-starter'
 	) );
 }
 
@@ -43,3 +52,17 @@ function wp_js_plugin_starter_register_block() {
  * Trigger the block registration on init.
  */
 add_action( 'init', 'wp_js_plugin_starter_register_block' );
+
+function my_plugin_render_block_post_author( $attributes, $content ) {
+	$post = get_post();
+	$author = new WP_User($post->post_author);
+    return sprintf(
+		'<div class="wp-block-wp-js-plugin-starter-post-author-block">'.
+		'%2$s'.
+		'<p>%1$s</p>'.
+		'</div>',
+		esc_html( $author->display_name ),
+		get_avatar($author->ID)
+    );
+}
+
